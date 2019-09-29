@@ -60,7 +60,7 @@ end
 
 # Build artifact json for each channel and version
 artifacts.each do |channel, version|
-  artifact_versions[channel] = {}
+  artifact_api[channel] = {}
   version.each do |ver, file|
     i = 0
     artifacts_channel = { 'results' => [{}] }
@@ -126,7 +126,7 @@ artifact_api.each do |channel, version|
   version.each do |ver, _value|
     FileUtils.mkdir_p(File.join('api', 'v1', 'cinc', channel, ver))
     File.open(File.join('api', 'v1', 'cinc', channel, ver, 'artifacts'), 'w') do |f|
-      f.write(JSON.pretty_generate(artifact_versions[channel][ver]))
+      f.write(JSON.pretty_generate(artifact_api[channel][ver]))
     end
   end
 end
