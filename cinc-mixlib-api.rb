@@ -117,8 +117,8 @@ end
 
 # Create versions json files for all versions for each channel
 versions_api.each do |channel, _versions|
-  FileUtils.mkdir_p(File.join(API_PATH, 'v1', PRODUCT, channel))
-  File.open(File.join(API_PATH, 'v1', PRODUCT, channel, 'versions'), 'w') do |f|
+  FileUtils.mkdir_p(File.join(API_PATH, 'v1', channel, PRODUCT))
+  File.open(File.join(API_PATH, 'v1', channel, PRODUCT, 'versions'), 'w') do |f|
     f.write(JSON.pretty_generate(versions_api[channel]))
   end
 end
@@ -126,8 +126,8 @@ end
 # Create artifacts json files for all channels and versions
 artifact_api.each do |channel, version|
   version.each do |ver, _value|
-    FileUtils.mkdir_p(File.join(API_PATH, 'v1', PRODUCT, channel, ver))
-    File.open(File.join(API_PATH, 'v1', PRODUCT, channel, ver, 'artifacts'), 'w') do |f|
+    FileUtils.mkdir_p(File.join(API_PATH, 'v1', channel, PRODUCT, ver))
+    File.open(File.join(API_PATH, 'v1', channel, PRODUCT, ver, 'artifacts'), 'w') do |f|
       f.write(JSON.pretty_generate(artifact_api[channel][ver]))
     end
   end
