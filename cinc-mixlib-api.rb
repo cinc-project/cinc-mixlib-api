@@ -19,7 +19,9 @@
 require 'json'
 require 'fileutils'
 
-base_path = 'downloads/files'
+BASE_PATH = ENV.fetch('CINC_FILES', 'downloads/files')
+API_PATH = ENV.fetch('CINC_API', 'api')
+PRODUCT = ENV.fetch('CINC_PRODUCT', 'cinc')
 CHANNELS = %w[stable current unstable].freeze
 
 # Hashes for storing information from the metadata.json files
@@ -31,7 +33,7 @@ artifact_api = {}
 
 # Find all metadata.json files and build versions and artifact hashes
 CHANNELS.each do |channel|
-  manifests = Dir.glob("#{base_path}/#{channel}/cinc/*/*/*metadata.json")
+  manifests = Dir.glob("#{BASE_PATH}/#{channel}/#{PRODUCT}/*/*/*metadata.json")
   artifacts[channel] = {}
   i = 0
   manifests.each do |manifest|
@@ -115,8 +117,8 @@ end
 
 # Create versions json files for all versions for each channel
 versions_api.each do |channel, _versions|
-  FileUtils.mkdir_p(File.join('api', 'v1', 'cinc', channel))
-  File.open(File.join('api', 'v1', 'cinc', channel, 'versions'), 'w') do |f|
+  FileUtils.mkdir_p(File.join(API_PATH, 'v1', PRODUCT, channel))
+  File.open(File.join(API_PATH, 'v1', PRODUCT, channel, 'versions'), 'w') do |f|
     f.write(JSON.pretty_generate(versions_api[channel]))
   end
 end
@@ -124,8 +126,8 @@ end
 # Create artifacts json files for all channels and versions
 artifact_api.each do |channel, version|
   version.each do |ver, _value|
-    FileUtils.mkdir_p(File.join('api', 'v1', 'cinc', channel, ver))
-    File.open(File.join('api', 'v1', 'cinc', channel, ver, 'artifacts'), 'w') do |f|
+    FileUtils.mkdir_p(File.join(API_PATH, 'v1', PRODUCT, channel, ver))
+    File.open(File.join(API_PATH, 'v1', PRODUCT, channel, ver, 'artifacts'), 'w') do |f|
       f.write(JSON.pretty_generate(artifact_api[channel][ver]))
     end
   end
