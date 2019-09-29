@@ -55,9 +55,14 @@ CHANNELS.each do |channel|
 end
 
 # Build versions json for each channel
-versions.each do |channel, v|
-  versions_api[channel] = { 'results' => [{ 'properties' => [] }] }
-  versions_api[channel]['results'][0]['properties'][0] = { 'key' => 'omnibus.version', 'value' => v }
+versions.each do |channel, versions|
+  versions_api[channel] = { 'results' => [{}] }
+  i = 0
+  versions.each do |v|
+    versions_api[channel]['results'][i] = { 'properties' => [] }
+    versions_api[channel]['results'][i]['properties'][0] = { 'key' => 'omnibus.version', 'value' => v }
+    i += 1
+  end
 end
 
 # Build artifact json for each channel and version
