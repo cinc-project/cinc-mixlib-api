@@ -52,7 +52,7 @@ end
 
 # Build versions json for each channel
 versions.each do |channel, vers|
-  versions_api[channel] = { "results" => [{}] }
+  versions_api[channel] = { "results" => [] }
   i = 0
   vers.each do |v|
     versions_api[channel]["results"][i] = { "properties" => [] }
