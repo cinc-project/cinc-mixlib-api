@@ -33,6 +33,7 @@ artifact_api = {}
 
 # Find all metadata.json files and build versions and artifact hashes
 CHANNELS.each do |channel|
+  versions[channel] = []
   manifests = Dir.glob("#{BASE_PATH}/#{channel}/#{PRODUCT}/*/*/*metadata.json")
   i = 0
   manifests.each do |manifest|
