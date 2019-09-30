@@ -26,7 +26,7 @@ CHANNELS = %w[stable current unstable].freeze
 
 # Hashes for storing information from the metadata.json files
 versions = {}
-artifacts = {}
+artifacts = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 # Hashes for writing out the json API files
 versions_api = {}
 artifact_api = {}
@@ -34,7 +34,6 @@ artifact_api = {}
 # Find all metadata.json files and build versions and artifact hashes
 CHANNELS.each do |channel|
   manifests = Dir.glob("#{BASE_PATH}/#{channel}/#{PRODUCT}/*/*/*metadata.json")
-  artifacts[channel] = {}
   i = 0
   manifests.each do |manifest|
     m_file = File.read(manifest)
@@ -44,11 +43,7 @@ CHANNELS.each do |channel|
     else
       versions[channel][i] = m['version']
     end
-    if artifacts[channel][m['version']].nil?
-      artifacts[channel][m['version']] = { m['basename'] => m }
-    else
-      artifacts[channel][m['version']][m['basename']] = m
-    end
+    artifacts[channel][m['version']][m['platform']][m['platform_version']][m['basename']] = m
     i += 1
   end
   versions[channel]&.sort!&.uniq!
@@ -66,57 +61,61 @@ versions.each do |channel, versions|
 end
 
 # Build artifact json for each channel and version
-artifacts.each do |channel, version|
+artifacts.each do |channel, versions|
   artifact_api[channel] = {}
-  version.each do |ver, file|
+  versions.each do |version, platforms|
     i = 0
     artifacts_channel = { 'results' => [{}] }
-    file.each do |name, value|
-      artifacts_channel['results'][i] =
-        {
-          'name' => name,
-          'properties' => [
+    platforms.each do |platform, platform_versions|
+      platform_versions.each do |platform_version, file|
+        file.each do |name, value|
+          artifacts_channel['results'][i] =
             {
-              'key' => 'omnibus.project',
-              'value' => value['name']
-            },
-            {
-              'key' => 'omnibus.version',
-              'value' => value['version']
-            },
-            {
-              'key' => 'omnibus.architecture',
-              'value' => value['arch']
-            },
-            {
-              'key' => 'omnibus.license',
-              'value' => value['license']
-            },
-            {
-              'key' => 'omnibus.md5',
-              'value' => value['md5']
-            },
-            {
-              'key' => 'omnibus.platform',
-              'value' => value['platform']
-            },
-            {
-              'key' => 'omnibus.platform_version',
-              'value' => value['platform_version']
-            },
-            {
-              'key' => 'omnibus.sha1',
-              'value' => value['sha1']
-            },
-            {
-              'key' => 'omnibus.sha256',
-              'value' => value['sha256']
+              'name' => name,
+              'properties' => [
+                {
+                  'key' => 'omnibus.project',
+                  'value' => value['name']
+                },
+                {
+                  'key' => 'omnibus.version',
+                  'value' => value['version']
+                },
+                {
+                  'key' => 'omnibus.architecture',
+                  'value' => value['arch']
+                },
+                {
+                  'key' => 'omnibus.license',
+                  'value' => value['license']
+                },
+                {
+                  'key' => 'omnibus.md5',
+                  'value' => value['md5']
+                },
+                {
+                  'key' => 'omnibus.platform',
+                  'value' => value['platform']
+                },
+                {
+                  'key' => 'omnibus.platform_version',
+                  'value' => value['platform_version']
+                },
+                {
+                  'key' => 'omnibus.sha1',
+                  'value' => value['sha1']
+                },
+                {
+                  'key' => 'omnibus.sha256',
+                  'value' => value['sha256']
+                }
+              ]
             }
-          ]
-        }
-      i += 1
+          artifact_api[channel][version] = artifacts_channel
+          i += 1
+        end
+      end
     end
-    artifact_api[channel][ver] = artifacts_channel
   end
 end
 
