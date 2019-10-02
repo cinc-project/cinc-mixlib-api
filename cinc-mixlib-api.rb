@@ -55,7 +55,17 @@ versions.each do |channel, vers|
   versions_api[channel] = { "results" => [] }
   i = 0
   vers.each do |v|
-    versions_api[channel]["results"][i] = { "properties" => [] }
+    versions_api[channel]["results"][i] =
+      {
+        "properties" => [],
+        "artifacts" => [
+          "builds" => [
+            {
+              "build.number" => v,
+            },
+          ],
+        ],
+      }
     versions_api[channel]["results"][i]["properties"][0] = { "key" => "omnibus.version", "value" => v }
     i += 1
   end
